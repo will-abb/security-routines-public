@@ -1,0 +1,81 @@
+- name: Configure UFW Rules
+  hosts: localhost
+  connection: local
+  become: true
+  tasks:
+    - name: Ensure UFW is installed
+      ansible.builtin.apt:
+        name: ufw
+        state: present
+    - name: Reset UFW
+      community.general.ufw:
+        state: reset
+    - name: Deny all incoming traffic by default
+      community.general.ufw:
+        direction: incoming
+        policy: deny
+    - name: Deny all outgoing traffic by default
+      community.general.ufw:
+        direction: outgoing
+        policy: deny
+    - name: Allow outgoing web traffic on port 80
+      community.general.ufw:
+        rule: allow
+        direction: out
+        port: '80'
+        comment: 'Allow outgoing web traffic on port 80'
+    - name: Allow outgoing web traffic on port 443
+      community.general.ufw:
+        rule: allow
+        direction: out
+        port: '443'
+        comment: 'Allow outgoing web traffic on port 443'
+    - name: Allow outgoing SSH traffic on port 22
+      community.general.ufw:
+        rule: allow
+        direction: out
+        port: '22'
+        comment: 'Allow outgoing SSH traffic on port 22'
+    - name: Allow outgoing SSH traffic on port 20022
+      community.general.ufw:
+        rule: allow
+        direction: out
+        port: '20022'
+        comment: 'Allow outgoing SSH traffic on port 20022'
+    - name: Allow outgoing RDP traffic on port 3389
+      community.general.ufw:
+        rule: allow
+        direction: out
+        port: '3389'
+        comment: 'Allow outgoing RDP traffic on port 3389'
+    - name: Allow outgoing DNS traffic on port 53
+      community.general.ufw:
+        rule: allow
+        direction: out
+        port: '53'
+        comment: 'Allow outgoing DNS traffic on port 53'
+    - name: Allow outgoing UDP traffic on ports 19302 through 19309 for STUN/TURN signaling (Google Meet)
+      community.general.ufw:
+        rule: allow
+        direction: out
+        proto: udp
+        from_port: '19302'
+        to_port: '19309'
+        comment: 'Allow outgoing UDP traffic on ports 19302 through 19309 for STUN/TURN signaling (Google Meet)'
+    - name: Allow outgoing NTP traffic on port 123
+      community.general.ufw:
+        rule: allow
+        direction: out
+        port: '123'
+        proto: udp
+        comment: 'Allow outgoing NTP traffic on port 123'
+    - name: Allow outgoing UDP traffic on port 3478 for Google Meet
+      community.general.ufw:
+        rule: allow
+        direction: out
+        proto: udp
+        port: '3478'
+        comment: 'Allow outgoing UDP traffic on port 3478 for Google Meet'
+    - name: Enable UFW
+      community.general.ufw:
+        state: enabled

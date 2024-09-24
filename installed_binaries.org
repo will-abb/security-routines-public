@@ -1,0 +1,26 @@
+#+title: Installed Binaries that
+* This is a list of installed binaries and need to be updated manually.
+** firefox: ansible script can update
+** yubico-auth
+** infracost
+** tflint
+** tfsec
+** dockerfmt:  Uninstalled because the automatic correction bothered me
+** chrysilis
+** doom emacs
+** gitleaks
+** ohmyzsh
+*** zsh-autosuggestions
+*** zsh-syntax-highlighting
+** .deb
+*** sops: don't upgrade cause of work
+*** aws ssm plugin
+*** nessus scanner
+*** ripgrep
+* Pip: tons in the virutal environments
+* Update Automatically
+** chrome
+** 1password
+** docker
+** dropbox
+** terraform

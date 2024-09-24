@@ -1,0 +1,18 @@
+- name: Update Go packages to the latest versions
+  hosts: localhost
+  become: false
+  tasks:
+    - name: Update dockfmt to the latest version
+      ansible.builtin.shell:
+        cmd: "/snap/bin/go install github.com/jessfraz/dockfmt@latest"
+        executable: /bin/bash
+      environment:
+        PATH: "{{ ansible_env.PATH }}:/snap/bin"
+      changed_when: true
+    - name: Update another Go package to the latest version
+      ansible.builtin.shell:
+        cmd: "/snap/bin/go install github.com/example/mypackage@latest"
+        executable: /bin/bash
+      environment:
+        PATH: "{{ ansible_env.PATH }}:/snap/bin"
+      changed_when: true

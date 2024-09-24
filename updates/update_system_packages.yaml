@@ -1,0 +1,34 @@
+- name: Update System
+  hosts: localhost
+  connection: local
+  become: true
+  tasks:
+    - name: Update and Upgrade APT Packages
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: dist
+        cache_valid_time: 3600
+    - name: Upgrade specific APT packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: latest
+      loop:
+        - snapd
+        - python3-pip
+    - name: Refresh all Snap packages to the latest version
+      ansible.builtin.command:
+        cmd: snap refresh
+      changed_when: true
+      become: true
+    - name: Remove unnecessary packages with autoremove
+      ansible.builtin.apt:
+        autoremove: true
+    - name: Clean up package cache with autoclean
+      ansible.builtin.apt:
+        autoclean: true
+    - name: Update Doom Emacs
+      ansible.builtin.command: /home/wil031583/.emacs.d/bin/doom upgrade
+      args:
+        chdir: /home/wil031583/.emacs.d
+      become: false
+      changed_when: true

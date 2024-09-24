@@ -1,0 +1,44 @@
+- name: Perform system scans
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Start nessusd service
+      become: true
+      ansible.builtin.systemd:
+        name: nessusd
+        state: started
+      tags: nessus
+    - name: Perform rkhunter scan
+      become: true
+      environment:
+        MY_SECURITY_REPOSITORY: "{{ lookup('env', 'MY_SECURITY_REPOSITORY') }}"
+      ansible.builtin.command: >
+        bash -c "rkhunter --check --sk  > $MY_SECURITY_REPOSITORY/security-scans/security-scans-results/rkhunter-scan-$(date +'%b%d').log"
+
+      changed_when: false
+      tags: rkhunter
+      register: rkhunter_result
+      failed_when: rkhunter_result.rc not in [0, 1]
+    - name: Perform Lynis security scan
+      # become: true
+      environment:
+        MY_SECURITY_REPOSITORY: "{{ lookup('env', 'MY_SECURITY_REPOSITORY') }}"
+      ansible.builtin.command: >
+        bash -c "lynis audit system > $MY_SECURITY_REPOSITORY/security-scans/security-scans-results/lynis-scan-$(date +'%b%d')"
+
+      changed_when: false
+      tags: lynis
+    - name: Perform clamscan and save report
+      # become: true
+      environment:
+        MY_SECURITY_REPOSITORY: "{{ lookup('env', 'MY_SECURITY_REPOSITORY') }}"
+      ansible.builtin.shell: >
+        clamscan -r -i / > $MY_SECURITY_REPOSITORY/security-scans/security-scans-results/clamscan{{ lookup('pipe', 'date +"%b%d"') }}
+
+      changed_when: false
+      tags: clamscan
+    - name: Stop nessusd service
+      become: true
+      ansible.builtin.systemd:
+        name: nessusd
+        state: stopped

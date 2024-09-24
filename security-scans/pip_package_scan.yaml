@@ -1,0 +1,22 @@
+- name: Audit Python virtual environments and save results
+  hosts: localhost
+  vars:
+    audit_directory: "{{ lookup('env', 'MY_SECURITY_REPOSITORY') }}/security-scans/security-scans-results"
+  tasks:
+    - name: Find all virtual environments
+      ansible.builtin.find:
+        paths: "/home/wil031583/virtual_environments"
+        file_type: directory
+        recurse: false
+      register: venvs
+    - name: Audit packages in each virtual environment and save results # noqa: ignore-errors
+      ansible.builtin.shell: |
+        source "{{ item.path }}/bin/activate" && pip-audit > "{{ audit_directory }}/pip-scan-$(date +'%Y-%m-%d-%H%M%S')"
+      args:
+        executable: /bin/bash
+      loop: "{{ venvs.files }}"
+      ignore_errors: true
+      changed_when: false
+    - name: Show path of the audit results file # noqa: ignore-errors
+      ansible.builtin.debug:
+        msg: "Audit results are saved in the directory {{ audit_directory }}"

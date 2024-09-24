@@ -1,0 +1,29 @@
+* Updates and Maintenance
+** Updates
+*** update_system_packages.yaml
+*** update phone, tablet, noteair2
+* Security Scans
+** perform_os_security_scan.yaml
+*** lynis
+*** clamscan
+*** nessus
+***
+*** rkhunter
+** Monitoring
+
+* System Configurations
+** Firewall
+** Boot
+*** add password to grub: GRUB_Password_Configuration_README.md
+*** add password and uefi: give instructions very short
+** Fail2Ban: not integrated
+
+* System Check
+* Repository Security
+** Secret Detection
+*** add ~/repositories/bitbucket/williseed1/configs/repos-git/.pre-commit-config-advanced.yaml
+**** remove no needed entries
+**** detect-secrets, gitleaks git-secrets
+**** see repo above for reames and more info
+** Update
+*** update github repos with pull/fetch

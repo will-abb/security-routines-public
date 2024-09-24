@@ -1,0 +1,61 @@
+- name: Run SonarQube Analysis on Repositories
+  hosts: localhost
+  connection: local
+  vars:
+    sonarqube_token: "{{ lookup('env','SONARQUBE_TOKEN') }}"
+    repo_base_dir: "/home/wil031583/personal-repos"
+    repositories:
+      - anki-flashcards
+      - configs
+      - transcription
+      - aws-python-scripts
+      - docker-containers
+      - quizlet
+      - williseed-bot
+      - aws-terraform-personal
+      - docker-website
+      - reviews-website
+      - wireguard-server
+      - cloud-custodian
+      - security-routines
+      - wordlesolver
+  tasks:
+    - name: Check if SonarQube token is set
+      ansible.builtin.fail:
+        msg: "SonarQube token is not set. Exiting..."
+      when: sonarqube_token is none or sonarqube_token == ''
+    - name: Ensure Docker is running
+      ansible.builtin.service:
+        name: docker
+        state: started
+    - name: Start SonarQube container
+      community.docker.docker_container:
+        name: sonarqube
+        image: sonarqube
+        ports:
+          - "9000:9000"
+        volumes:
+          - "sonarqube_data:/opt/sonarqube/data"
+        state: started
+        restart_policy: unless-stopped
+    - name: Wait for SonarQube to be ready
+      ansible.builtin.uri:
+        url: http://localhost:9000/api/system/status
+        return_content: true
+        headers:
+          Accept: "application/json"
+      register: sonar_status
+      until: sonar_status.content | from_json | json_query('status') == 'UP'
+      retries: 12
+      delay: 10
+    - name: Run SonarQube analysis on repositories
+      ansible.builtin.shell: |
+        sonar-scanner \
+          -Dsonar.projectKey={{ item }} \
+          -Dsonar.sources={{ repo_base_dir }}/{{ item }} \
+          -Dsonar.host.url=http://localhost:9000 \
+          -Dsonar.login={{ sonarqube_token }}
+      args:
+        chdir: "{{ repo_base_dir }}/{{ item }}"
+      loop: "{{ repositories }}"
+      changed_when: false
